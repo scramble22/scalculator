@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Калькулятор интервалов</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+    }
+    h2 {
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      color: #444;
+    }
+    input {
+      padding: 5px;
+      width: 200px;
+    }
+    button {
+      padding: 8px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    h3 {
+      margin-top: 20px;
+      color: #333;
+    }
+    p {
+      color: #555;
+    }
+    .interval-container {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Калькулятор интервалов</h2>
+  
+  <div class="interval-container">
+    <label for="interval1">Введите первый интервал (например, [-б;0] или [-7;+б]): </label>
+    <input type="text" id="interval1" placeholder="например, [-б;0]">
+  </div>
+
+  <button onclick="addInterval()">+</button>
+  <button onclick="calculate()">Найти</button>
+
+  <h3>Результаты:</h3>
+  <p id="intersectionResult"></p>
+  <p id="unionResult"></p>
+
+  <script>
+    function addInterval() {
+      const container = document.querySelector('.interval-container');
+      const newInput = document.createElement('input');
+      newInput.type = 'text';
+      newInput.placeholder = 'например, [-б;0]';
+      container.appendChild(document.createElement('br'));
+      container.appendChild(newInput);
+    }
+
+    function calculate() {
+      const inputs = document.querySelectorAll('.interval-container input');
+      const intervals = Array.from(inputs).map(input => parseInterval(input.value));
+
+      const validIntervals = intervals.filter(interval => interval !== null);
+
+      if (validIntervals.length < 2) {
+        alert('Неверный ввод. Добавьте как минимум два интервала для вычислений.');
+        return;
+      }
+
+      const intersection = validIntervals.slice(1).reduce((acc, current) => findIntersection(acc, current), validIntervals[0]);
+      const union = validIntervals.slice(1).reduce((acc, current) => findUnion(acc, current), validIntervals[0]);
+
+      document.getElementById('intersectionResult').innerText = `Пересечение: ${formatInterval(intersection)}`;
+      document.getElementById('unionResult').innerText = `Объединение: ${formatInterval(union)}`;
+    }
+
+    function parseInterval(input) {
+      const match = input.match(/^([\[(])-?(б|\d+|\u221E);(-?(б|\d+|\u221E))(?:([\[(])|([\])]))?$/);
+      if (match) {
+        const startInclusive = match[1] === '[';
+        const endInclusive = (match[5] === '[') || (match[6] === ']');
+        const start = (match[2] === 'б' || match[2] === '\u221E') ? Infinity : parseFloat(match[2]);
+        const end = (match[3] === 'б' || match[3] === '\u221E') ? Infinity : parseFloat(match[3]);
+        if (!isNaN(start) && !isNaN(end) && start <= end) {
+          return { start, end, startInclusive, endInclusive };
+        }
+      }
+      return null;
+    }
+
+    function findIntersection(interval1, interval2) {
+      const start = Math.max(interval1.start, interval2.start);
+      const end = Math.min(interval1.end, interval2.end);
+      return (start < end || (start === end && interval1.endInclusive && interval2.startInclusive)) ?
+        { start, end, startInclusive: true, endInclusive: true } :
+        null;
+    }
+
+    function findUnion(interval1, interval2) {
+      const start = Math.min(interval1.start, interval2.start);
+      const end = Math.max(interval1.end, interval2.end);
+      return { start, end, startInclusive: (interval1.start < interval2.start) ? interval1.startInclusive : interval2.startInclusive, endInclusive: (interval1.end > interval2.end) ? interval1.endInclusive : interval2.endInclusive };
+    }
+
+    function formatInterval(interval) {
+      const startSymbol = (interval.start === -Infinity) ? '-б' : (interval.startInclusive ? '[' : '(');
+      const endSymbol = (interval.end === Infinity) ? '+б' : (interval.endInclusive ? ']' : ')');
+      return interval ?
+        `${startSymbol}${interval.start};${interval.end}${endSymbol}` :
+        'Нет пересечения';
+    }
+  </script>
+</body>
+</html>
