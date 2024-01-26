@@ -1,64 +1,15 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор интервалов</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 20px;
-      background-color: #f5f5f5;
-    }
-    h2 {
-      color: #333;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      color: #444;
-    }
-    input {
-      padding: 5px;
-      width: 200px;
-    }
-    button {
-      padding: 8px;
-      background-color: #4caf50;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    h3 {
-      margin-top: 20px;
-      color: #333;
-    }
-    p {
-      color: #555;
-    }
-    .interval-container {
-      margin-top: 10px;
-    }
-  </style>
+  <title>Интервалы</title>
 </head>
 <body>
-  <h2>Калькулятор интервалов</h2>
-  
-  <div class="interval-container">
-    <label for="interval1">Введите первый интервал (например, [-б;0] или [-7;+б]): </label>
-    <input type="text" id="interval1" placeholder="например, [-б;0]">
-  </div>
+  <div class="interval-container"></div>
+  <button onclick="addInterval()">Добавить интервал</button>
+  <button onclick="calculate()">Вычислить</button>
 
-  <button onclick="addInterval()">+</button>
-  <button onclick="calculate()">Найти</button>
-
-  <h3>Результаты:</h3>
-  <p id="intersectionResult"></p>
-  <p id="unionResult"></p>
+  <p id="intersectionResult">Пересечение: </p>
+  <p id="unionResult">Объединение: </p>
 
   <script>
     function addInterval() {
@@ -84,8 +35,8 @@
       const intersection = validIntervals.slice(1).reduce((acc, current) => findIntersection(acc, current), validIntervals[0]);
       const union = validIntervals.slice(1).reduce((acc, current) => findUnion(acc, current), validIntervals[0]);
 
-      document.getElementById('intersectionResult').innerText = `Пересечение: ${formatInterval(intersection)}`;
-      document.getElementById('unionResult').innerText = `Объединение: ${formatInterval(union)}`;
+      document.getElementById('intersectionResult').innerText = 'Пересечение: ' + formatInterval(intersection);
+      document.getElementById('unionResult').innerText = 'Объединение: ' + formatInterval(union);
     }
 
     function parseInterval(input) {
@@ -120,7 +71,7 @@
       const startSymbol = (interval.start === -Infinity) ? '-б' : (interval.startInclusive ? '[' : '(');
       const endSymbol = (interval.end === Infinity) ? '+б' : (interval.endInclusive ? ']' : ')');
       return interval ?
-        `${startSymbol}${interval.start};${interval.end}${endSymbol}` :
+        startSymbol + interval.start + ';' + interval.end + endSymbol :
         'Нет пересечения';
     }
   </script>
